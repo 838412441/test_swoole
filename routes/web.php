@@ -11,6 +11,4 @@
 |
 */
 
-Route::get('/', function () {
-    dd("请输入有效路径进行访问");
-});
+Route::get('/','IndexController@index');
