@@ -11,6 +11,6 @@
 |
 */
 
-Route::group(['namespace' => 'Api'], function () {
+Route::group(['namespace' => 'Api', 'prefix' => 'swoole'], function () {
     Route::get('index', 'IndexController@index');
 });
