@@ -11,4 +11,6 @@
 |
 */
 
-Route::get('/', 'IndexController@index');
+Route::group(['namespace' => 'Api'], function () {
+
+});
