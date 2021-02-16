@@ -11,7 +11,7 @@ class Swoole extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'swoole';
 
     /**
      * The console command description.
@@ -37,6 +37,6 @@ class Swoole extends Command
      */
     public function handle()
     {
-        //
+        dd("测试命令使用");
     }
 }
