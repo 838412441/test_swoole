@@ -33,7 +33,7 @@ class Swoole extends Command
         parent::__construct();
         // redis
         $this->redis = new \Redis();
-        $this->redis->connect('127.0.0.1', 6379);
+        $this->redis->connection('127.0.0.1', 6379);
         // websocket
         $this->server = new \Swoole\WebSocket\Server("0.0.0.0", 9501);
         $this->server->set([
