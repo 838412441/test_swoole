@@ -35,7 +35,7 @@ class Swoole extends Command
             echo "server: handshake success with fd{$request->fd}\n";
         });
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
-            dd($frame);
+            var_dump($frame);
             $server->push($frame->fd, "this is server");
         });
         $this->server->on('close', function ($ser, $fd) {
