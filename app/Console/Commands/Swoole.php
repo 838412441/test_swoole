@@ -21,7 +21,6 @@ class Swoole extends Command
     protected $description = 'Command description';
     protected $url = "ws://175.24.185.52:9501";
     protected $server;
-    protected $redis;
 
     /**
      * Create a new command instance.
@@ -32,8 +31,6 @@ class Swoole extends Command
     {
         parent::__construct();
         // redis
-        $this->redis = new Redis();
-        $this->redis->connect('127.0.0.1', 6379);
         // websocket
         $this->server = new \Swoole\WebSocket\Server("0.0.0.0", 9501);
         $this->server->set([
