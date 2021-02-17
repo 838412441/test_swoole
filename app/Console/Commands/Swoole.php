@@ -31,10 +31,15 @@ class Swoole extends Command
     {
         parent::__construct();
         $this->server = new \Swoole\WebSocket\Server("0.0.0.0", 9501);
+        $this->server->set([
+            'dispatch_mode' => 5,
+        ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
+            $server->bind($request->fd, 11);
             echo "server: handshake success with fd{$request->fd}\n";
         });
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
+            echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
             var_dump($frame);
             $server->push($frame->fd, "this is server");
         });
