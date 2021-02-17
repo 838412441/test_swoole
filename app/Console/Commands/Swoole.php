@@ -40,18 +40,23 @@ class Swoole extends Command
             'dispatch_mode' => 5,
         ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
+            // bind uid
             $server->bind($request->fd, 11);
+            // reids
             $this->redis->rPush(11, $request->fd);
             echo "server: handshake success with fd{$request->fd}\n";
         });
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
             // echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+            // redis
             $fds = $this->redis->lRange(11, 0, -1);
             var_dump($fds);
             $server->push($frame->fd, "this is server");
         });
         $this->server->on('close', function ($ser, $fd) {
             echo "client {$fd} closed\n";
+            // redis
+            $this->redis->lRem(11, $fd);
         });
         $this->server->start();
     }
