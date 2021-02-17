@@ -12,4 +12,9 @@ class IndexController extends Controller
     {
         return view('main.login');
     }
+
+    public function loginPd($token)
+    {
+        return response()->json(['code' => 1000, 'token' => $token]);
+    }
 }
