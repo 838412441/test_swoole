@@ -51,6 +51,8 @@ class Swoole extends Command
             echo PHP_EOL;
             echo "server";
             var_dump($server->getClientInfo($frame->fd));
+            $fds = $this->redis->lLen(11);
+            var_dump($fds);
             $server->push($frame->fd, "this is server");
         });
         $this->server->on('close', function ($ser, $fd) {
