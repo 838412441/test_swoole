@@ -10,7 +10,9 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::get('/', function () {
+    dd("请输入正确的访问路径");
+});
 Route::group(['namespace' => 'Api', 'prefix' => 'swoole'], function () {
-    Route::get('index', 'IndexController@index');
+    Route::get('login', 'IndexController@login');
 });
