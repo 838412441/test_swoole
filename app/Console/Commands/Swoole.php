@@ -46,12 +46,7 @@ class Swoole extends Command
         });
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
             // echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-            echo "frame";
-            var_dump($frame);
-            echo PHP_EOL;
-            echo "server";
-            var_dump($server->getClientInfo($frame->fd));
-            $fds = $this->redis->lLen(11);
+            $fds = $this->redis->lRange(11, 0, -1);
             var_dump($fds);
             $server->push($frame->fd, "this is server");
         });
