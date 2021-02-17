@@ -44,7 +44,7 @@ class Swoole extends Command
             var_dump($frame);
             echo PHP_EOL;
             echo "server";
-            var_dump($server);
+            var_dump($server->uid);
             $server->push($frame->fd, "this is server");
         });
         $this->server->on('close', function ($ser, $fd) {
