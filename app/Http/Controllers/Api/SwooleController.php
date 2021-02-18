@@ -49,4 +49,12 @@ class SwooleController extends Controller
         sort($userList);
         return response()->json(['code' => 1000, 'message' => '操作成功', 'data' => compact('userList')]);
     }
+
+    // 获取选中的用户信息
+    public function userInfo($party)
+    {
+        $user_id_list = array_column($this->userList, 'id');
+        $user = $this->userList[array_search($party, $user_id_list)];
+        return response()->json(['code' => 1000, 'message' => '操作成功', 'data' => compact('user')]);
+    }
 }

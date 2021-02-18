@@ -62,6 +62,7 @@ class Swoole extends Command
         // 设置websocket链接方式
         $this->server->set([
             'dispatch_mode' => 5,
+            'daemonize' => 1
         ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
             var_dump("start " . $request->fd);

@@ -27,6 +27,10 @@
             height: 500px;
             overflow-y: auto;
         }
+
+        .active {
+            background: #CCCCCC;
+        }
     </style>
 </head>
 <body class="gray-bg">
@@ -44,16 +48,16 @@
                         <div class="row">
                             <div class="col-md-8 chat-windows">
                                 <div>
-                                    <div class="chat-message" v-for="value in chatInfo">
+                                    <div class="chat-message" v-for="value in chatInfo"
+                                         v-if="value.send_user_id == party || value.send_user_id == token">
                                         <img class="message-avatar"
                                              :class="[value.send_user_id == token ? 'avatar-right' : 'avatar-left']"
-                                             :src="value.send_user_id == token ? value.send_user_info.avatar : value.party_user_info.avatar"
+                                             :src="value.send_user_info.avatar"
                                              alt="">
                                         <div class="message"
                                              :class="[value.send_user_id == token ? 'message-right' : 'message-left']">
                                             <a class="message-author" href="javascript:;">
-                                                @{{ value.send_user_id == token ? value.send_user_info.title :
-                                                value.party_user_info.title }}
+                                                @{{ value.send_user_info.title }}
                                             </a>
                                             <span class="message-date"> @{{ value.time }} </span>
                                             <span class="message-content">
@@ -69,6 +73,7 @@
                                     <div class="users-list">
                                         <div v-if="userList.length == 0">好友列表中没有好友</div>
                                         <div v-else class="chat-user" v-for="value in userList"
+                                             :class="[value.id == party ? 'active':'']"
                                              @click="getChatInfo(value.id)">
                                             <img class="chat-avatar" :src="value.avatar" alt="">
                                             <div class="chat-user-name">
@@ -125,6 +130,10 @@
                 };
                 // 渲染
                 this.websocketsend(JSON.stringify(history));
+                // 获取选中的用户信息
+                this.$http.get("/swoole/user-info/" + this.party).then(function (res) {
+                    console.log(res.data);
+                });
             },
             getUserList() {
                 this.$http.get("/swoole/user-list/" + this.token).then(function (res) {
@@ -134,6 +143,9 @@
             insert(e) {
                 // 获取
                 this.message = e.target.value;
+                if (this.message == '') {
+                    return;
+                }
                 // 发送
                 let actions = {
                     'type': 'message',

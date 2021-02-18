@@ -18,4 +18,5 @@ Route::group(['namespace' => 'Api', 'prefix' => 'swoole'], function () {
     Route::get('login-pd/{token}', 'IndexController@loginPd');
     Route::get('chat', 'SwooleController@chat');
     Route::get('user-list/{token}', 'SwooleController@userList');
+    Route::get('user-info/{party}', 'SwooleController@userInfo');
 });
