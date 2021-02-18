@@ -122,6 +122,7 @@
             websocketonopen() { //连接建立之后执行send方法发送数据
                 // 和用户绑定
                 let actions = {
+                    "type": "start",
                     "token": this.token,
                 };
                 // 数据发送
