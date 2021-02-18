@@ -63,28 +63,29 @@ class Swoole extends Command
             'dispatch_mode' => 5,
         ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
-//            var_dump($request);
-//            // 接收用户token 绑定对应用户
-//            $server->bind($request->fd, 11);
-//            // reids
-//            $this->redis->rPush(11, $request->fd);
-//            echo "server: handshake success with fd{$request->fd}\n";
-        });
-        $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
-            // echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-            // redis
-//            $fds = $this->redis->lRange(11, 0, -1);
-//            var_dump($fds);
-//            $server->push($frame->fd, "this is server");
-            $data = $frame->data;
-            $data = json_decode($data, true);
-            var_dump($data);
 
         });
+        $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
+            $data = $frame->data;
+            $data = json_decode($data, true);
+            if ($data['type'] == 'start') {
+                // 将链接FD绑定对应用户
+                $server->bind($frame->fd, $data['token']);
+                // 存入redis
+                $this->redis->rPush($data['token'], $frame->fd);
+            } elseif ($data['type'] == 'close') {
+                // 删除redis中的绑定关系
+                $this->redis->lRem($data['token'], $frame->fd);
+            } elseif ($data['type'] == 'message') {
+                // 读取所有当前用户的FD信息
+                $fds = $this->redis->lRange($data['token'], 0, -1);
+                // 读取所有接受者的FD信息
+                $party = $this->redis->lRange($data['party'], 0, -1);
+            }
+            var_dump($data);
+        });
         $this->server->on('close', function ($ser, $fd) {
-//            echo "client {$fd} closed\n";
-//            // redis
-//            $this->redis->lRem(11, $fd);
+
         });
         $this->server->start();
     }
