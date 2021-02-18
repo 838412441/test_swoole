@@ -136,6 +136,8 @@ class Swoole extends Command
                 } elseif ($this->redis->exists($data['party'] . "_" . $data['token'])) {
                     // 获取聊天室
                     $room = $data['party'] . "_" . $data['token'];
+                } else {
+                    $room = "";
                 }
                 // 获取聊天室的所有信息
                 $infos = $this->redis->lRange($room, 0, -1);

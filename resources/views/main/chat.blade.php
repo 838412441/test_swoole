@@ -22,6 +22,11 @@
             margin-left: 0px;
             margin-right: 50px;
         }
+
+        .chat-windows {
+            height: 500px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body class="gray-bg">
@@ -32,12 +37,12 @@
             <div class="col-lg-12">
                 <div class="ibox chat-view">
                     <div class="ibox-title">
-                        <small class="pull-right text-muted">最新消息：{{date('Y-m-d')}}</small>
+                        <small class="pull-right text-muted">当前时间：{{date('Y-m-d')}}</small>
                         聊天窗口
                     </div>
                     <div class="ibox-content">
                         <div class="row">
-                            <div class="col-md-9 ">
+                            <div class="col-md-8 chat-windows">
                                 <div>
                                     <div class="chat-message" v-for="value in chatInfo">
                                         <img class="message-avatar"
@@ -58,6 +63,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-1"></div>
                             <div class="col-md-3">
                                 <div class="chat-users">
                                     <div class="users-list">
@@ -99,10 +105,26 @@
             chatInfo: [],
             message: '',
             token: localStorage.getItem("token"),
+            party: '',
         },
         methods: {
+            scrollToBottom() {
+                this.$nextTick(() => {
+                    let box = this.$el.querySelector(".chat-windows");
+                    box.scrollTop = box.scrollHeight;
+                })
+            },
             getChatInfo(id) {
-                console.log(id)
+                this.party = id;
+                this.chatInfo = [];
+                // 获取历史记录
+                let history = {
+                    "type": "history",
+                    "token": this.token,
+                    "party": this.party,
+                };
+                // 渲染
+                this.websocketsend(JSON.stringify(history));
             },
             getUserList() {
                 this.$http.get("/swoole/user-list/" + this.token).then(function (res) {
@@ -116,7 +138,7 @@
                 let actions = {
                     'type': 'message',
                     'token': this.token,
-                    'party': 2,
+                    'party': this.party,
                     'message': this.message,
                 }
                 this.websocketsend(JSON.stringify(actions));
@@ -141,13 +163,13 @@
                 };
                 // 数据发送
                 this.websocketsend(JSON.stringify(actions));
-                // 获取历史记录
-                let history = {
-                    "type": "history",
-                    "token": this.token,
-                    "party": 2,
-                };
-                this.websocketsend(JSON.stringify(history));
+                // // 获取历史记录
+                // let history = {
+                //     "type": "history",
+                //     "token": this.token,
+                //     "party": 2,
+                // };
+                // this.websocketsend(JSON.stringify(history));
                 console.log("链接成功");
             },
             websocketonerror() {//连接建立失败重连
@@ -169,12 +191,11 @@
                             //item 就是当日按循环到的对象
                             //index是循环的索引，从0开始
                             let info = JSON.parse(item);
-                            console.log(info, 'test')
-                            // info.send_user_info = JSON.parse(info.send_user_info);
-                            // info.party_user_info = JSON.parse(info.party_user_info);
+                            info.send_user_info = JSON.parse(info.send_user_info);
+                            info.party_user_info = JSON.parse(info.party_user_info);
                             message.push(info);
                         })
-                        console.log(message, '所有记录');
+                        this.chatInfo = message;
                     }
                     console.log(res, 'success');
                 } else {
@@ -204,6 +225,14 @@
             }
             // websocket链接
             this.initWebSocket();
+        },
+        mounted() {
+            // 滚动条位置在底部
+            this.scrollToBottom()
+        },
+        updated() {
+            // 滚动条位置在底部
+            this.scrollToBottom()
         },
         destroyed() {
             this.websock.close() //离开路由之后断开websocket连接
