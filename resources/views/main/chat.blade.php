@@ -40,10 +40,15 @@
                             <div class="col-md-9 ">
                                 <div>
                                     <div class="chat-message" v-for="value in chatInfo">
-                                        <img class="message-avatar" :class="[value.send_user_id == token ? 'avatar-right' : 'avatar-left']" :src="value.send_user_id == token ? value.send_user_info.avatar : value.party_user_info.avatar" alt="">
-                                        <div class="message" :class="[value.send_user_id == token ? 'message-right' : 'message-left']">
+                                        <img class="message-avatar"
+                                             :class="[value.send_user_id == token ? 'avatar-right' : 'avatar-left']"
+                                             :src="value.send_user_id == token ? value.send_user_info.avatar : value.party_user_info.avatar"
+                                             alt="">
+                                        <div class="message"
+                                             :class="[value.send_user_id == token ? 'message-right' : 'message-left']">
                                             <a class="message-author" href="javascript:;">
-                                                @{{ value.send_user_id == token ? value.send_user_info.title : value.party_user_info.title }}
+                                                @{{ value.send_user_id == token ? value.send_user_info.title :
+                                                value.party_user_info.title }}
                                             </a>
                                             <span class="message-date"> @{{ value.time }} </span>
                                             <span class="message-content">
@@ -72,7 +77,8 @@
                             <div class="col-lg-12">
                                 <div class="chat-message-form">
                                     <div class="form-group">
-                                        <input type="textarea" class="form-control message-input" @keyup.enter="insert" :value="message">
+                                        <input type="textarea" class="form-control message-input" @keyup.enter="insert"
+                                               :value="message">
                                     </div>
                                 </div>
                             </div>
@@ -136,12 +142,12 @@
                 // 数据发送
                 this.websocketsend(JSON.stringify(actions));
                 // 获取历史记录
-                // let history = {
-                //     "type": "history",
-                //     "token": this.token,
-                //     "parse": 2,
-                // };
-                // this.websocketsend(JSON.stringify(history));
+                let history = {
+                    "type": "history",
+                    "token": this.token,
+                    "party": 2,
+                };
+                this.websocketsend(JSON.stringify(history));
                 console.log("链接成功");
             },
             websocketonerror() {//连接建立失败重连
@@ -150,16 +156,21 @@
             },
             websocketonmessage(e) { //数据接收
                 let res = JSON.parse(e.data);
-                res.send_user_info = JSON.parse(res.send_user_info);
-                res.party_user_info = JSON.parse(res.party_user_info);
-                console.log(res, '解析后');
-                if (res.code == 999) {
-                    console.log(res, 'error');
-                } else {
+                if (res.code == 1000) {
+                    if (res.type == 'string') {
+                        let infos = res.data.infos;
+                        infos.send_user_info = JSON.parse(infos.send_user_info);
+                        infos.party_user_info = JSON.parse(infos.party_user_info);
+                        this.chatInfo.push(infos);
+                    } else if (res.type == 'array') {
+                        infos.send_user_info = JSON.parse(infos.send_user_info);
+                        infos.party_user_info = JSON.parse(infos.party_user_info);
+                        this.chatInfo = infos;
+                    }
                     console.log(res, 'success');
-                    this.chatInfo.push(res);
+                } else {
+                    console.log(res, 'error');
                 }
-                // console.log(e, '接收到的服务端的数据');
             },
             websocketsend(Data) {//数据发送
                 this.websock.send(Data);

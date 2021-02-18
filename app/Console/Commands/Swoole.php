@@ -137,7 +137,7 @@ class Swoole extends Command
                     $room = $data['party'] . "_" . $data['token'];
                 }
                 // 获取聊天室的所有信息
-                $infos = $this->redis->lRange($data['party'], 0, -1);
+                $infos = $this->redis->lRange($room, 0, -1);
                 $message = json_encode(['code' => 1000, 'message' => 'array', 'message' => '操作成功', 'data' => compact('infos')]);
                 foreach ($fds as $index => $item) {
                     $server->push($item, $message);
