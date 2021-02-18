@@ -22,6 +22,28 @@ class Swoole extends Command
     protected $url = "ws://175.24.185.52:9501";
     protected $server;
     protected $redis;
+    protected $userList = [
+        [
+            'id' => 1,
+            'title' => '小红',
+            'avatar' => '/img/a3.jpg',
+        ],
+        [
+            'id' => 2,
+            'title' => '小兰',
+            'avatar' => '/img/a7.jpg',
+        ],
+        [
+            'id' => 3,
+            'title' => '小青',
+            'avatar' => '/img/a5.jpg',
+        ],
+        [
+            'id' => 4,
+            'title' => '王刚',
+            'avatar' => '/img/a6.jpg',
+        ],
+    ];
 
     /**
      * Create a new command instance.
@@ -36,11 +58,13 @@ class Swoole extends Command
         $this->redis->connect('127.0.0.1', 6379);
         // websocket
         $this->server = new \Swoole\WebSocket\Server("0.0.0.0", 9501);
+        // 设置websocket链接方式
         $this->server->set([
             'dispatch_mode' => 5,
         ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
-            // bind uid
+            var_dump($request);
+            // 接收用户token 绑定对应用户
             $server->bind($request->fd, 11);
             // reids
             $this->redis->rPush(11, $request->fd);
