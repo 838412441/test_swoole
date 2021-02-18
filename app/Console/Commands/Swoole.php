@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class Swoole extends Command
@@ -91,14 +92,14 @@ class Swoole extends Command
                 // 读取所有接受者的FD信息
                 $party = $this->redis->lRange($data['party'], 0, -1);
                 // 接受消息
-                $info = [
+                $infos = [
                     'send_user_id' => $data['token'],
                     'send_user_info' => json_encode($this->userList[array_search($data['token'], $user_id_list)], JSON_UNESCAPED_UNICODE),
                     'party_user_id' => $data['party'],
                     'party_user_info' => json_encode($this->userList[array_search($data['party'], $user_id_list)], JSON_UNESCAPED_UNICODE),
                     'message' => $data['message'],
+                    'time' => Carbon::now(),
                 ];
-                $info = json_encode($info);
                 // 判断聊天室是否存在
                 if ($this->redis->exists($data['token'] . "_" . $data['party'])) {
                     // 获取聊天室
@@ -111,19 +112,36 @@ class Swoole extends Command
                     $room = $data['token'] . "_" . $data['party'];
                 }
                 // 在聊天室内储存信息
-                $this->redis->rPush($room, $info);
+                $message = json_encode(['code' => 1000, 'type' => 'string', 'message' => '操作成功', 'data' => compact('infos')]);
+                $this->redis->rPush($room, $message);
                 // 将聊天信息返回前端
                 foreach ($fds as $key => $value) {
-                    $server->push($value, $info);
+                    $server->push($value, $message);
                 }
                 if ($party) {
                     foreach ($party as $key => $value) {
-                        $server->push($value, $info);
+                        $server->push($value, $message);
                     }
                 }
             } elseif ($data['type'] == 'history') {
-                // 读取当前用户所有FD信息
+                // 读取所有当前用户的FD信息
                 $fds = $this->redis->lRange($data['token'], 0, -1);
+                // 读取所有接受者的FD信息
+                $party = $this->redis->lRange($data['party'], 0, -1);
+                // 判断聊天室是否存在
+                if ($this->redis->exists($data['token'] . "_" . $data['party'])) {
+                    // 获取聊天室
+                    $room = $data['token'] . "_" . $data['party'];
+                } elseif ($this->redis->exists($data['party'] . "_" . $data['token'])) {
+                    // 获取聊天室
+                    $room = $data['party'] . "_" . $data['token'];
+                }
+                // 获取聊天室的所有信息
+                $infos = $this->redis->lRange($data['party'], 0, -1);
+                $message = json_encode(['code' => 1000, 'message' => 'array', 'message' => '操作成功', 'data' => compact('infos')]);
+                foreach ($fds as $index => $item) {
+                    $server->push($item, $message);
+                }
             }
             var_dump($data);
         });
