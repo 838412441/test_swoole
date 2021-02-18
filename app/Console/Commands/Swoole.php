@@ -63,7 +63,7 @@ class Swoole extends Command
             'dispatch_mode' => 5,
         ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
-            var_dump($request->fd);
+            var_dump("start " . $request->fd);
         });
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
             $data = $frame->data;
@@ -81,11 +81,14 @@ class Swoole extends Command
                 $fds = $this->redis->lRange($data['token'], 0, -1);
                 // 读取所有接受者的FD信息
                 $party = $this->redis->lRange($data['party'], 0, -1);
+            } elseif ($data['type'] == 'history') {
+                // 读取当前用户所有FD信息
+                $fds = $this->redis->lRange($data['token'], 0, -1);
             }
             var_dump($data);
         });
         $this->server->on('close', function ($ser, $fd) {
-
+            var_dump("close " . $fd);
         });
         $this->server->start();
     }

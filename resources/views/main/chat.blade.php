@@ -127,8 +127,10 @@
                 };
                 // 数据发送
                 this.websocketsend(JSON.stringify(actions));
+                console.log("链接成功");
             },
             websocketonerror() {//连接建立失败重连
+                console.log("链接失败...重连中...");
                 this.initWebSocket();
             },
             websocketonmessage(e) { //数据接收
