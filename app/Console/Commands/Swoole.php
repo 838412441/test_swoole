@@ -77,6 +77,7 @@ class Swoole extends Command
 //            var_dump($fds);
 //            $server->push($frame->fd, "this is server");
             $data = $frame->data;
+            $data = json_decode($data, true);
             var_dump($data);
 
         });
