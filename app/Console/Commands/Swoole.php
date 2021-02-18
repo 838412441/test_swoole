@@ -63,7 +63,7 @@ class Swoole extends Command
             'dispatch_mode' => 5,
         ]);
         $this->server->on('open', function (\swoole_websocket_server $server, $request) {
-
+            var_dump($request->fd);
         });
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
             $data = $frame->data;

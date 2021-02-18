@@ -138,6 +138,13 @@
                 this.websock.send(Data);
             },
             websocketclose(e) {  //关闭
+                // 和用户绑定
+                let actions = {
+                    "type": "close",
+                    "token": this.token,
+                };
+                // 数据发送
+                this.websocketsend(JSON.stringify(actions));
                 console.log(e, '断开连接');
             },
         },
