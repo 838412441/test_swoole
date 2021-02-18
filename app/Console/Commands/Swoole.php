@@ -77,10 +77,48 @@ class Swoole extends Command
                 // 删除redis中的绑定关系
                 $this->redis->lRem($data['token'], $frame->fd);
             } elseif ($data['type'] == 'message') {
+                if (!isset($data['token']) || !isset($data['party']) || !isset($data['message'])) {
+                    $json = ['code' => 999, 'message' => 'token、party、message不存在'];
+                    $server->push($frame->fd, json_encode($json, JSON_UNESCAPED_UNICODE));
+                }
+                $user_id_list = array_column($this->userList, 'id');
+                if (!in_array($data['token'], $user_id_list) || !in_array($data['party'], $user_id_list)) {
+                    $json = ['code' => 999, 'message' => '发送者或接受者不存在'];
+                    $server->push($frame->fd, json_encode($json, JSON_UNESCAPED_UNICODE));
+                }
                 // 读取所有当前用户的FD信息
                 $fds = $this->redis->lRange($data['token'], 0, -1);
                 // 读取所有接受者的FD信息
                 $party = $this->redis->lRange($data['party'], 0, -1);
+                // 接受消息
+                $info = [
+                    'send_user_id' => $data['token'],
+                    'party_user_id' => $data['party'],
+                    'message' => $data['message'],
+                ];
+                $info = json_encode($info);
+                // 判断聊天室是否存在
+                if ($this->redis->exists($data['token'] . "_" . $data['party'])) {
+                    // 获取聊天室
+                    $room = $data['token'] . "_" . $data['party'];
+                } elseif ($this->redis->exists($data['party'] . "_" . $data['token'])) {
+                    // 获取聊天室
+                    $room = $data['party'] . "_" . $data['token'];
+                } else {
+                    // 创建一个聊天室
+                    $room = $data['token'] . "_" . $data['party'];
+                }
+                // 在聊天室内储存信息
+                $this->redis->rPush($room, $info);
+                // 将聊天信息返回前端
+                foreach ($fds as $key => $value) {
+                    $server->push($value, $info);
+                }
+                if ($party) {
+                    foreach ($party as $key => $value) {
+                        $server->push($value, $info);
+                    }
+                }
             } elseif ($data['type'] == 'history') {
                 // 读取当前用户所有FD信息
                 $fds = $this->redis->lRange($data['token'], 0, -1);
