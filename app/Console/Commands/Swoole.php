@@ -100,6 +100,7 @@ class Swoole extends Command
                     'message' => $data['message'],
                     'time' => Carbon::now(),
                 ];
+                $info = json_encode($infos, JSON_UNESCAPED_UNICODE);
                 // 判断聊天室是否存在
                 if ($this->redis->exists($data['token'] . "_" . $data['party'])) {
                     // 获取聊天室
@@ -113,7 +114,7 @@ class Swoole extends Command
                 }
                 // 在聊天室内储存信息
                 $message = json_encode(['code' => 1000, 'type' => 'string', 'message' => '操作成功', 'data' => compact('infos')]);
-                $this->redis->rPush($room, $message);
+                $this->redis->rPush($room, $info);
                 // 将聊天信息返回前端
                 foreach ($fds as $key => $value) {
                     $server->push($value, $message);

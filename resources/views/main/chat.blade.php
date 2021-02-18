@@ -164,7 +164,17 @@
                         this.chatInfo.push(infos);
                     } else if (res.type == 'array') {
                         let infos = res.data.infos;
-                        console.log(infos, '所有记录');
+                        let message = [];
+                        infos.forEach(function (item, index) {
+                            //item 就是当日按循环到的对象
+                            //index是循环的索引，从0开始
+                            let info = JSON.parse(item);
+                            console.log(info, 'test')
+                            // info.send_user_info = JSON.parse(info.send_user_info);
+                            // info.party_user_info = JSON.parse(info.party_user_info);
+                            message.push(info);
+                        })
+                        console.log(message, '所有记录');
                     }
                     console.log(res, 'success');
                 } else {
