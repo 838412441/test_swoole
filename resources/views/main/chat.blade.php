@@ -163,9 +163,8 @@
                         infos.party_user_info = JSON.parse(infos.party_user_info);
                         this.chatInfo.push(infos);
                     } else if (res.type == 'array') {
-                        infos.send_user_info = JSON.parse(infos.send_user_info);
-                        infos.party_user_info = JSON.parse(infos.party_user_info);
-                        this.chatInfo = infos;
+                        let infos = res.data.infos;
+                        console.log(infos, '所有记录');
                     }
                     console.log(res, 'success');
                 } else {
