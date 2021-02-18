@@ -93,7 +93,9 @@ class Swoole extends Command
                 // 接受消息
                 $info = [
                     'send_user_id' => $data['token'],
+                    'send_user_info' => json_encode($this->userList[array_search($data['token'], $user_id_list)], JSON_UNESCAPED_UNICODE),
                     'party_user_id' => $data['party'],
+                    'party_user_info' => json_encode($this->userList[array_search($data['party'], $user_id_list)], JSON_UNESCAPED_UNICODE),
                     'message' => $data['message'],
                 ];
                 $info = json_encode($info);
